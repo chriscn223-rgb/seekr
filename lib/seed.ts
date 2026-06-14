@@ -110,19 +110,37 @@ export function generateCreators(count = 148): Creator[] {
     // Engagement slightly correlated
     const engagement = Math.max(8, Math.min(97, Math.round(popularity * 0.7 + faker.number.int({ min: -18, max: 22 }))));
 
+    // New premium fields
+    const signal_score = Math.max(20, Math.min(98, Math.round((popularity * 0.5 + engagement * 0.4 + faker.number.int({ min: -10, max: 15 })) / 1.1)));
+    const is_nsfw = faker.datatype.boolean({ probability: 0.65 });
+    const price = faker.datatype.boolean({ probability: 0.85 }) ? faker.number.int({ min: 4, max: 49 }) : undefined;
+    const is_free = !price && faker.datatype.boolean({ probability: 0.3 });
+    const last_active = faker.date.recent({ days: faker.number.int({ min: 1, max: 45 }) }).toISOString();
+
     const updated = faker.date.recent({ days: 120 }).toISOString();
+
+    const primary = faker.helpers.arrayElement(PLATFORMS);
 
     const creator: Creator = {
       id: faker.string.uuid(),
       username,
       display_name,
       bio: generateBio(display_name, category, tags),
+      avatar_url: `https://picsum.photos/id/${(i % 60) + 10}/320/320`,
       profile_image_url: `https://picsum.photos/id/${(i % 60) + 10}/320/320`,
       category,
       tags,
       ...loc,
+      country: (loc as any).location_country,
+      city: (loc as any).location_city,
       popularity_score: popularity,
       engagement_score: engagement,
+      signal_score,
+      primary_platform: primary,
+      price_monthly: price,
+      is_free,
+      is_nsfw,
+      last_active_at: last_active,
       platforms: randomPlatforms(username),
       updated_at: updated,
     };

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MapPin, Copy, Bookmark, ExternalLink } from "lucide-react";
 import { RankedCreator } from "@/lib/types";
 import { toast } from "sonner";
@@ -12,11 +13,18 @@ interface Props {
 }
 
 export default function CreatorCard({ creator, isSelected, onCardClick }: Props) {
+  const router = useRouter();
   const loc = [creator.location_city, creator.location_state, creator.location_country]
     .filter(Boolean)
     .join(", ");
 
   const topPlatforms = creator.platforms.slice(0, 3);
+
+  const handleOpen = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/creator/${creator.username}`);
+  };
 
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,33 +54,43 @@ export default function CreatorCard({ creator, isSelected, onCardClick }: Props)
 
   const engagementLevel = creator.engagement_score > 75 ? "green" : creator.engagement_score > 50 ? "yellow" : "red";
 
+  const lastActive = new Date(creator.last_active_at || creator.updated_at);
+  const daysAgo = Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
+  const activeLabel = daysAgo < 1 ? "Active today" : daysAgo < 7 ? "Active this week" : "Active recently";
+
   return (
     <Link 
       href={`/creator/${creator.username}`} 
       className={`block group creator-card card ${isSelected ? "ring-1 ring-[#3BF5FF]/70" : ""}`}
       onClick={handleProfileClick}
     >
-      {/* Image */}
-      <div className="card-image">
+      {/* Image - 4:5 premium ratio */}
+      <div className="card-image" style={{ aspectRatio: "4 / 5" }}>
         <img
-          src={creator.profile_image_url}
+          src={creator.avatar_url || creator.profile_image_url}
           alt={creator.display_name}
           className="absolute inset-0"
           loading="lazy"
         />
         
-        {/* Subtle badges */}
-        {creator.popularity_score > 85 && (
-          <div className="image-badge">Trending</div>
+        {/* Gradient overlay for text legibility on hover */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
+        
+        {/* Premium badges */}
+        {creator.is_nsfw && (
+          <div className="image-badge" style={{ background: "rgba(249,115,115,0.9)", borderColor: "#F97373", color: "white" }}>[18+]</div>
         )}
-        {creator.platforms[0] && (
-          <div className="image-badge" style={{ left: "auto", right: "10px" }}>
-            {creator.platforms[0].name}
+        {creator.signal_score > 85 && (
+          <div className="image-badge" style={{ left: "auto", right: "10px" }}>Top signal</div>
+        )}
+        {creator.primary_platform && (
+          <div className="image-badge" style={{ left: "auto", right: "10px", top: creator.is_nsfw || creator.signal_score > 85 ? "32px" : "10px" }}>
+            {creator.primary_platform}
           </div>
         )}
       </div>
 
-      {/* Body */}
+      {/* Body - premium layout */}
       <div className="card-body">
         <div>
           <div className="card-username">{creator.username}</div>
@@ -86,6 +104,9 @@ export default function CreatorCard({ creator, isSelected, onCardClick }: Props)
           </div>
         )}
 
+        {/* Short bio */}
+        <div className="mt-1.5 text-[12px] text-[#9CA3AF] line-clamp-2 leading-snug">{creator.bio}</div>
+
         {/* Tags */}
         <div className="card-tags">
           <span className="tag accent">{creator.category}</span>
@@ -94,41 +115,42 @@ export default function CreatorCard({ creator, isSelected, onCardClick }: Props)
           ))}
         </div>
 
-        {/* Platform badges */}
-        <div className="platform-badges">
+        {/* Platform icons + price/Free */}
+        <div className="platform-badges mt-2">
           {topPlatforms.map((p, i) => (
             <span key={i} className="platform-badge">{p.name}</span>
           ))}
           {creator.platforms.length > 3 && <span className="platform-badge">+{creator.platforms.length - 3}</span>}
+          {creator.is_free ? (
+            <span className="platform-badge" style={{ background: "rgba(34,197,94,0.15)", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}>Free</span>
+          ) : creator.price_monthly ? (
+            <span className="platform-badge">from ${creator.price_monthly}</span>
+          ) : null}
         </div>
 
-        {/* Metrics */}
-        <div className="metrics">
+        {/* Premium metrics + trust signals */}
+        <div className="metrics mt-auto pt-2.5">
           <div className="metric">
-            <span>Pop</span> 
-            <span className="font-mono text-[#F9FAFB]">{creator.popularity_score}</span>
+            <span>Signal</span> 
+            <span className="font-mono text-[#3BF5FF] font-semibold">{creator.signal_score}</span>
           </div>
-          <div className="metric">
-            <span>Eng</span>
-            <span className={`dot ${engagementLevel}`} />
+          <div className="metric text-[11px]">
+            <span className="text-[#22C55E]">●</span> {activeLabel}
           </div>
-          {creator.platforms.some(p => p.price) && (
-            <div className="metric text-[#3BF5FF]">
-              from ${Math.min(...creator.platforms.filter(p => p.price).map(p => p.price!))}
-            </div>
-          )}
+          <div className="metric text-xs">
+            Pop <span className="font-mono text-[#F9FAFB]">{creator.popularity_score}</span>
+          </div>
         </div>
       </div>
 
       {/* Hover actions */}
       <div className="hover-actions" onClick={e => e.stopPropagation()}>
-        <a 
-          href={`/creator/${creator.username}`} 
+        <button 
+          onClick={handleOpen}
           className="hover-btn"
-          onClick={handleProfileClick}
         >
           <ExternalLink className="w-3.5 h-3.5" /> Open
-        </a>
+        </button>
         <button onClick={handleCopy} className="hover-btn">
           <Copy className="w-3.5 h-3.5" /> Copy
         </button>

@@ -9,16 +9,25 @@ export interface Creator {
   username: string; // unique, used for URL
   display_name: string;
   bio: string;
-  profile_image_url: string; // picsum or external
+  avatar_url: string; // picsum or external (alias for profile_image_url for new schema)
+  profile_image_url: string;
   category: string;
   tags: string[];
   location_city?: string;
   location_state?: string;
   location_country?: string;
+  country?: string;
+  city?: string;
   lat?: number;
   lng?: number;
   popularity_score: number; // 0-100
   engagement_score: number; // 0-100
+  signal_score: number; // 0-100 composite quality
+  primary_platform?: string;
+  price_monthly?: number;
+  is_free: boolean;
+  is_nsfw: boolean;
+  last_active_at: string; // ISO
   platforms: PlatformLink[];
   updated_at: string; // ISO
 }
@@ -37,10 +46,12 @@ export interface SearchFilters {
   minPopularity?: number;
   minEngagement?: number;
   maxPrice?: number;
+  minSignal?: number;
   lat?: number;
   lng?: number;
   radiusKm?: number;
-  sort?: "relevance" | "popularity" | "engagement" | "newest";
+  sort?: "relevance" | "popularity" | "engagement" | "newest" | "price" | "distance";
+  hideNsfw?: boolean;
 }
 
 export interface SearchResponse {
