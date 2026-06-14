@@ -11,15 +11,51 @@ export default function SubmitProfile() {
     username: "", display_name: "", bio: "",
     location_city: "", location_country: "",
     primary_platform: "OnlyFans", price_monthly: "",
-    is_nsfw: false, tags: "",
+    is_nsfw: false, tags: "", category: "",
   });
 
   const next = () => setStep(s => Math.min(3, s + 1));
   const back = () => setStep(s => Math.max(1, s - 1));
 
   const submit = () => {
-    console.log("Submission:", form);
-    toast.success("Profile submitted for review. Thank you!");
+    // Simulate adding to the live index for this demo
+    const demoCreator = {
+      id: 'user-' + Date.now(),
+      username: form.username || `user${Date.now().toString().slice(-4)}`,
+      display_name: form.display_name || form.username,
+      bio: form.bio || 'Newly submitted creator profile.',
+      avatar_url: 'https://picsum.photos/id/1005/320/320',
+      category: form.category || 'Lifestyle',
+      tags: (form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : ['new']),
+      location_city: form.location_city || 'Remote',
+      location_country: form.location_country || 'Global',
+      lat: 40.7 + (Math.random() - 0.5) * 1.5,
+      lng: -74 + (Math.random() - 0.5) * 2,
+      popularity_score: 70,
+      engagement_score: 75,
+      signal_score: 82,
+      primary_platform: form.primary_platform,
+      price_monthly: form.price_monthly ? parseInt(form.price_monthly) : undefined,
+      is_free: !form.price_monthly,
+      is_nsfw: form.is_nsfw,
+      last_active_at: new Date().toISOString(),
+      platforms: [{ 
+        name: form.primary_platform, 
+        url: `https://example.com/${form.username}`, 
+        price: form.price_monthly ? parseInt(form.price_monthly) : undefined 
+      }],
+      updated_at: new Date().toISOString(),
+      _score: 0.95,
+    };
+
+    let demos = [];
+    try {
+      demos = JSON.parse(localStorage.getItem('seekr_demo_creators') || '[]');
+    } catch {}
+    demos = [demoCreator, ...demos].slice(0, 5); // keep recent
+    localStorage.setItem('seekr_demo_creators', JSON.stringify(demos));
+
+    toast.success("Profile submitted for review. Thank you! (Demo added to this session's results)");
     setStep(4);
   };
 
@@ -75,6 +111,10 @@ export default function SubmitProfile() {
               <label htmlFor="nsfw" className="text-sm">This is adult / NSFW content</label>
             </div>
             <div>
+              <label className="label">Primary category / niche</label>
+              <input className="input" value={form.category} onChange={e=>setForm({...form,category:e.target.value})} placeholder="Gaming" />
+            </div>
+            <div>
               <label className="label">Niche / Tags (comma separated)</label>
               <input className="input" value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} placeholder="cosplay, fitness, ASMR" />
             </div>
@@ -91,6 +131,7 @@ export default function SubmitProfile() {
             <div className="text-3xl mb-3">✓</div>
             <div className="text-xl font-semibold mb-2">Thank you.</div>
             <p className="text-[#7B849C]">We will review and index your profile within 24–48 hours.</p>
+          <p className="text-xs text-[#7B849C] mt-2">For this demo, use the "+ Add demo creator" button on the main search page to see a simulated submission appear in results instantly.</p>
             <Link href="/" className="btn btn-ghost mt-6">Back to search</Link>
           </div>
         )}

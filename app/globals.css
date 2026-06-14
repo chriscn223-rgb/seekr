@@ -381,5 +381,38 @@ body {
 }
 .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
 
+/* Basic form inputs for submit/about etc. */
+.input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color 0.1s;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px var(--search-glow);
+}
+.input::placeholder { color: var(--text-faint); }
+
 /* Map */
 .leaflet-container { background: #080B14 !important; }
+
+/* Mobile FAB (deep intelligence micro-interaction) */
+.mobile-fab {
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(240,165,0,0.15);
+}
+.mobile-fab:active {
+  transform: scale(0.96);
+}
+
+/* Active filter summary chips (small, clearable) */
+#results ~ .container .chip.active {
+  font-size: 11px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
