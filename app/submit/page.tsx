@@ -6,109 +6,94 @@ import Navbar from "@/components/Navbar";
 import { toast } from "sonner";
 
 export default function SubmitProfile() {
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    username: "",
-    display_name: "",
-    bio: "",
-    location_city: "",
-    location_country: "",
-    primary_platform: "OnlyFans",
-    price_monthly: "",
-    is_nsfw: false,
-    category: "Lifestyle",
-    tags: "",
+    username: "", display_name: "", bio: "",
+    location_city: "", location_country: "",
+    primary_platform: "OnlyFans", price_monthly: "",
+    is_nsfw: false, tags: "",
   });
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In real version this would POST to /api/creators
-    console.log("Self-submission received:", form);
+  const next = () => setStep(s => Math.min(3, s + 1));
+  const back = () => setStep(s => Math.max(1, s - 1));
+
+  const submit = () => {
+    console.log("Submission:", form);
     toast.success("Profile submitted for review. Thank you!");
-    setSubmitted(true);
+    setStep(4);
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-[#05060A] text-[#F9FAFB]">
-        <Navbar />
-        <div className="container py-16 max-w-md">
-          <h1 className="h1 mb-4">Thank you!</h1>
-          <p className="text-[#9CA3AF] mb-6">Your profile has been received. We will review and index it within 24-48 hours.</p>
-          <Link href="/" className="btn-primary inline-block">Back to search</Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#05060A] text-[#F9FAFB]">
+    <div className="min-h-screen bg-[#080B14] text-[#EDF0F8]">
       <Navbar />
-      <div className="container py-10 max-w-lg">
-        <div className="mb-8">
-          <div className="label tracking-[2px] text-[#3BF5FF]">CREATOR PORTAL</div>
-          <h1 className="h1">Submit your profile</h1>
-          <p className="text-[#9CA3AF] mt-2">Join thousands of creators being discovered on Seekr. All submissions are manually reviewed.</p>
+      <div className="container py-10 max-w-md">
+        <div className="mb-6">
+          <div className="label text-[#F0A500]">CREATOR PORTAL</div>
+          <h1 className="h2">Submit your profile</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 card p-6">
-          <div>
-            <label className="label mb-1 block">Username / Handle</label>
-            <input required value={form.username} onChange={e => setForm({...form, username: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" placeholder="@yourhandle" />
-          </div>
+        {/* Amber step indicator */}
+        <div className="flex gap-2 mb-8">
+          {[1,2,3].map(s => (
+            <div key={s} className={`h-1 flex-1 rounded ${s <= step ? 'bg-[#F0A500]' : 'bg-[#1A2038]'}`} />
+          ))}
+        </div>
 
-          <div>
-            <label className="label mb-1 block">Display Name</label>
-            <input required value={form.display_name} onChange={e => setForm({...form, display_name: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" />
+        {step === 1 && (
+          <div className="card p-6 space-y-4">
+            <div><label className="label">Username / Handle</label><input className="input" value={form.username} onChange={e=>setForm({...form,username:e.target.value})} /></div>
+            <div><label className="label">Display Name</label><input className="input" value={form.display_name} onChange={e=>setForm({...form,display_name:e.target.value})} /></div>
+            <div><label className="label">Short Bio</label><textarea className="input h-20" value={form.bio} onChange={e=>setForm({...form,bio:e.target.value})} /></div>
+            <button onClick={next} className="btn btn-primary w-full mt-2">Continue</button>
           </div>
+        )}
 
-          <div>
-            <label className="label mb-1 block">Short Bio</label>
-            <textarea required value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5 h-20" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label mb-1 block">City</label>
-              <input value={form.location_city} onChange={e => setForm({...form, location_city: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" />
+        {step === 2 && (
+          <div className="card p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="label">City</label><input className="input" value={form.location_city} onChange={e=>setForm({...form,location_city:e.target.value})} /></div>
+              <div><label className="label">Country</label><input className="input" value={form.location_country} onChange={e=>setForm({...form,location_country:e.target.value})} /></div>
             </div>
             <div>
-              <label className="label mb-1 block">Country</label>
-              <input value={form.location_country} onChange={e => setForm({...form, location_country: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label mb-1 block">Primary Platform</label>
-              <select value={form.primary_platform} onChange={e => setForm({...form, primary_platform: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5">
-                <option>OnlyFans</option><option>Fansly</option><option>Patreon</option><option>Instagram</option><option>TikTok</option><option>Twitch</option><option>YouTube</option><option>X</option>
+              <label className="label">Primary Platform</label>
+              <select className="input" value={form.primary_platform} onChange={e=>setForm({...form,primary_platform:e.target.value})}>
+                {["OnlyFans","Fansly","Patreon","Instagram","TikTok","Twitch","YouTube","X"].map(p => <option key={p}>{p}</option>)}
               </select>
             </div>
-            <div>
-              <label className="label mb-1 block">Monthly Price (USD)</label>
-              <input type="number" value={form.price_monthly} onChange={e => setForm({...form, price_monthly: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" placeholder="Leave blank if free" />
+            <div><label className="label">Monthly Price (leave blank if free)</label><input type="number" className="input" value={form.price_monthly} onChange={e=>setForm({...form,price_monthly:e.target.value})} /></div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={back} className="btn btn-ghost flex-1">Back</button>
+              <button onClick={next} className="btn btn-primary flex-1">Continue</button>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={form.is_nsfw} onChange={e => setForm({...form, is_nsfw: e.target.checked})} /> This is adult / NSFW content
-            </label>
+        {step === 3 && (
+          <div className="card p-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={form.is_nsfw} onChange={e=>setForm({...form,is_nsfw:e.target.checked})} id="nsfw" />
+              <label htmlFor="nsfw" className="text-sm">This is adult / NSFW content</label>
+            </div>
+            <div>
+              <label className="label">Niche / Tags (comma separated)</label>
+              <input className="input" value={form.tags} onChange={e=>setForm({...form,tags:e.target.value})} placeholder="cosplay, fitness, ASMR" />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={back} className="btn btn-ghost flex-1">Back</button>
+              <button onClick={submit} className="btn btn-primary flex-1">Submit for review</button>
+            </div>
+            <p className="text-center text-xs text-[#7B849C]">All submissions are manually reviewed.</p>
           </div>
+        )}
 
-          <div>
-            <label className="label mb-1 block">Niche / Tags (comma separated)</label>
-            <input value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} className="w-full bg-[#050814] border border-[#1F2937] rounded-lg px-4 py-2.5" placeholder="fitness, cosplay, ASMR" />
+        {step === 4 && (
+          <div className="card p-8 text-center">
+            <div className="text-3xl mb-3">✓</div>
+            <div className="text-xl font-semibold mb-2">Thank you.</div>
+            <p className="text-[#7B849C]">We will review and index your profile within 24–48 hours.</p>
+            <Link href="/" className="btn btn-ghost mt-6">Back to search</Link>
           </div>
-
-          <button type="submit" className="btn-primary w-full mt-4">Submit for review</button>
-          <p className="text-center text-xs text-[#9CA3AF]">We manually review all submissions to keep quality high.</p>
-        </form>
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-[#9CA3AF] hover:text-white text-sm">← Back to search</Link>
-        </div>
+        )}
       </div>
     </div>
   );

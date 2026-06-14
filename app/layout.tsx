@@ -15,16 +15,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "seekr — Instant Creator Search",
-    template: "%s | seekr",
+    default: "seekr · Find creators instantly",
+    template: "%s · seekr",
   },
-  description: "Search creators by name, username, niche, tags, location. Clean, fast, no logins, no ads. The most accurate creator discovery engine.",
+  description: "The creator intelligence layer. Search 23,000+ creators across platforms, niches, and locations. No ads. No logins. Just profiles.",
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
-    title: "seekr — Instant Creator Search",
-    description: "Search creators instantly. Profiles only. No noise.",
+    title: "seekr · Find creators instantly",
+    description: "Search the exact creator you need. Instantly.",
   },
 };
 
@@ -38,7 +38,19 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full flex flex-col bg-[#05060A] text-[#F9FAFB]">
+      <head>
+        {/* Display font: Cabinet Grotesk for headings and brand */}
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800,900&display=swap"
+          rel="stylesheet"
+        />
+        {/* Body font: Satoshi for all UI text */}
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-[#080B14] text-[#EDF0F8]">
         {children}
         <Toaster position="top-center" richColors closeButton />
       </body>

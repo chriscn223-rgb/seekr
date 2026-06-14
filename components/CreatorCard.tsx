@@ -58,14 +58,20 @@ export default function CreatorCard({ creator, isSelected, onCardClick }: Props)
   const daysAgo = Math.floor((Date.now() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
   const activeLabel = daysAgo < 1 ? "Active today" : daysAgo < 7 ? "Active this week" : "Active recently";
 
+  // Platform icon helper (Simple Icons CDN - clean grayscale)
+  const getPlatformIcon = (name: string) => {
+    const slug = name.toLowerCase().replace(/\s+/g, '');
+    return `https://cdn.simpleicons.org/${slug}/a1a1aa`;
+  };
+
   return (
     <Link 
       href={`/creator/${creator.username}`} 
-      className={`block group creator-card card ${isSelected ? "ring-1 ring-[#3BF5FF]/70" : ""}`}
+      className={`block group creator-card card ${isSelected ? "ring-1 ring-[#6B9BF2]/60" : ""}`}
       onClick={handleProfileClick}
     >
-      {/* Image - 4:5 premium ratio */}
-      <div className="card-image" style={{ aspectRatio: "4 / 5" }}>
+      {/* Image: clean 4:3, no per-card cyan glow */}
+      <div className="card-image">
         <img
           src={creator.avatar_url || creator.profile_image_url}
           alt={creator.display_name}
@@ -73,90 +79,64 @@ export default function CreatorCard({ creator, isSelected, onCardClick }: Props)
           loading="lazy"
         />
         
-        {/* Gradient overlay for text legibility on hover */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
-        
-        {/* Premium badges */}
-        {creator.is_nsfw && (
-          <div className="image-badge" style={{ background: "rgba(249,115,115,0.9)", borderColor: "#F97373", color: "white" }}>[18+]</div>
-        )}
-        {creator.signal_score > 85 && (
-          <div className="image-badge" style={{ left: "auto", right: "10px" }}>Top signal</div>
-        )}
+        {/* Platform badge (top left) */}
         {creator.primary_platform && (
-          <div className="image-badge" style={{ left: "auto", right: "10px", top: creator.is_nsfw || creator.signal_score > 85 ? "32px" : "10px" }}>
-            {creator.primary_platform}
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/70 text-[10px] px-1.5 py-0.5 rounded text-[#E5E7EB]">
+            <img src={getPlatformIcon(creator.primary_platform)} alt="" className="w-3 h-3" />
+            <span>{creator.primary_platform}</span>
           </div>
+        )}
+        
+        {/* 18+ badge if applicable */}
+        {creator.is_nsfw && (
+          <div className="absolute top-2 right-2 bg-[#F87171] text-[10px] text-black px-1.5 py-px rounded font-medium tracking-[0.5px]">18+</div>
         )}
       </div>
 
-      {/* Body - premium layout */}
-      <div className="card-body">
-        <div>
-          <div className="card-username">{creator.username}</div>
-          <div className="card-display">{creator.display_name}</div>
+      <div className="body">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="username">@{creator.username}</div>
+            <div className="display">{creator.display_name}</div>
+          </div>
+          <div className="text-right text-[11px] text-[#F0A500] tabular-nums font-medium">
+            {creator.signal_score}
+          </div>
         </div>
 
         {loc && (
-          <div className="card-location">
-            <MapPin className="w-3.5 h-3.5" /> 
-            <span className="truncate">{loc}</span>
+          <div className="location flex items-center gap-1">
+            <MapPin className="w-3 h-3" /> {loc}
           </div>
         )}
 
-        {/* Short bio */}
-        <div className="mt-1.5 text-[12px] text-[#9CA3AF] line-clamp-2 leading-snug">{creator.bio}</div>
-
-        {/* Tags */}
-        <div className="card-tags">
-          <span className="tag accent">{creator.category}</span>
-          {creator.tags.slice(0, 2).map((t, i) => (
-            <span key={i} className="tag">{t}</span>
-          ))}
+        {/* Flat text tags (no individual pills) */}
+        <div className="tags text-[11px] mt-2">
+          {creator.tags.slice(0, 3).map((t, i) => <span key={i}>{t}</span>)}
+          {creator.is_nsfw && <span>18+</span>}
         </div>
 
-        {/* Platform icons + price/Free */}
-        <div className="platform-badges mt-2">
-          {topPlatforms.map((p, i) => (
-            <span key={i} className="platform-badge">{p.name}</span>
-          ))}
-          {creator.platforms.length > 3 && <span className="platform-badge">+{creator.platforms.length - 3}</span>}
+        {/* Meta row with platform icons + price */}
+        <div className="meta">
+          <div className="flex gap-1.5">
+            {topPlatforms.slice(0, 2).map((p, i) => (
+              <img key={i} src={getPlatformIcon(p.name)} alt={p.name} className="w-3.5 h-3.5 opacity-70" />
+            ))}
+          </div>
+          <div className="flex-1" />
           {creator.is_free ? (
-            <span className="platform-badge" style={{ background: "rgba(34,197,94,0.15)", color: "#22C55E", borderColor: "rgba(34,197,94,0.3)" }}>Free</span>
+            <span className="price text-[#34D399]">Free</span>
           ) : creator.price_monthly ? (
-            <span className="platform-badge">from ${creator.price_monthly}</span>
+            <span className="price">from ${creator.price_monthly}</span>
           ) : null}
-        </div>
-
-        {/* Premium metrics + trust signals */}
-        <div className="metrics mt-auto pt-2.5">
-          <div className="metric">
-            <span>Signal</span> 
-            <span className="font-mono text-[#3BF5FF] font-semibold">{creator.signal_score}</span>
-          </div>
-          <div className="metric text-[11px]">
-            <span className="text-[#22C55E]">●</span> {activeLabel}
-          </div>
-          <div className="metric text-xs">
-            Pop <span className="font-mono text-[#F9FAFB]">{creator.popularity_score}</span>
-          </div>
         </div>
       </div>
 
-      {/* Hover actions */}
+      {/* Hover actions — amber primary CTA */}
       <div className="hover-actions" onClick={e => e.stopPropagation()}>
-        <button 
-          onClick={handleOpen}
-          className="hover-btn"
-        >
-          <ExternalLink className="w-3.5 h-3.5" /> Open
-        </button>
-        <button onClick={handleCopy} className="hover-btn">
-          <Copy className="w-3.5 h-3.5" /> Copy
-        </button>
-        <button onClick={handleSave} className="hover-btn">
-          <Bookmark className="w-3.5 h-3.5" /> Save
-        </button>
+        <button onClick={handleOpen} className="hover-btn flex-1">View profile</button>
+        <button onClick={handleCopy} className="hover-btn secondary">Share</button>
+        <button onClick={handleSave} className="hover-btn secondary">Save</button>
       </div>
     </Link>
   );

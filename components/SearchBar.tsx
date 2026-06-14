@@ -86,7 +86,7 @@ export default function SearchBar({
   return (
     <div ref={containerRef} className="relative w-full">
       <div className="search-bar group">
-        <Search className="w-5 h-5 text-[#3BF5FF] flex-shrink-0" />
+        <Search className="w-4 h-4 text-[#7B849C] group-focus-within:text-[#F0A500] transition-colors flex-shrink-0" />
 
         <input
           ref={inputRef}
@@ -103,26 +103,17 @@ export default function SearchBar({
         {value && (
           <button
             onClick={() => { onChange(""); setOpen(false); inputRef.current?.focus(); }}
-            className="mr-2 text-[#9CA3AF] hover:text-white"
+            className="mr-1 text-[#7B849C] hover:text-[#EDF0F8] text-lg leading-none"
           >
-            <X className="w-4 h-4" />
+            ×
           </button>
         )}
 
-        {/* Right action pills */}
+        {/* Right action pills (compact) */}
         <div className="search-actions pr-1">
-          <button 
-            onClick={onNearMe} 
-            className="search-pill"
-          >
-            <MapPin className="w-3.5 h-3.5" /> Near me
-          </button>
-          <button 
-            onClick={onAdvanced} 
-            className="search-pill"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" /> Advanced
-          </button>
+          <button onClick={onNearMe} className="chip text-[11px] h-7 px-3">Near me</button>
+          <button onClick={onAdvanced} className="chip text-[11px] h-7 px-3">Advanced</button>
+          <button onClick={onSubmit} className="search-btn text-xs">Search</button>
         </div>
       </div>
 

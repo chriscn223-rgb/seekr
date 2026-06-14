@@ -29,7 +29,7 @@ export default function FilterBar({ filters, onChange, onMoreFilters, total, too
 
   return (
     <div className="flex items-center justify-between gap-3 flex-wrap">
-      <div className="filter-bar flex-1 min-w-[280px]">
+      <div className={`filter-bar flex-1 min-w-[280px] ${filters.lat ? 'sticky-lifted' : ''}`}>
         {/* Platforms quick multi */}
         {PLATFORMS.slice(0, 5).map(p => {
           const active = (filters.platforms || []).includes(p);
@@ -72,13 +72,15 @@ export default function FilterBar({ filters, onChange, onMoreFilters, total, too
           onChange={(e) => setSort(e.target.value as any)} 
           className="sort-select"
         >
-          <option value="relevance">Relevance (default)</option>
-          <option value="popularity">Most popular</option>
-          <option value="engagement">Highest engagement</option>
+          <option value="relevance">Relevance</option>
+          <option value="popularity">Popularity</option>
+          <option value="engagement">Engagement</option>
           <option value="newest">Newest</option>
+          <option value="price">Price</option>
+          <option value="distance">Distance</option>
         </select>
 
-        <div className="text-xs text-[#9CA3AF] font-mono tabular-nums hidden sm:block">
+        <div className="text-xs text-[#7B849C] font-mono tabular-nums hidden sm:block">
           {total} results • {tookMs}ms
         </div>
       </div>
