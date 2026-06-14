@@ -318,7 +318,7 @@ export default function SeekrSearchClient() {
   // Remove a single active filter key (for the active filters row)
   const clearOneFilter = (key: keyof SearchFilters) => {
     const nf = { ...filters };
-    // @ts-ignore - flexible demo closing
+    // @ts-ignore - flexible demo clearing
     delete nf[key];
     if (key === 'lat' || key === 'lng' || key === 'radiusKm') {
       delete nf.lat; delete nf.lng; delete nf.radiusKm;
@@ -327,6 +327,15 @@ export default function SeekrSearchClient() {
     if (key === 'platforms') nf.platforms = undefined;
     if (key === 'tags') nf.tags = undefined;
     setFiltersAndSync(nf);
+  };
+
+  // Shared Surprise me logic (used by button + keyboard 'r')
+  const triggerSurprise = () => {
+    const pool = visibleRef.current.length > 0 ? visibleRef.current : visible;
+    if (pool.length === 0) return;
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    router.push(`/creator/${r.username}`);
+    toast.success(`Surprise → @${r.username}`);
   };
 
   // Keyboard shortcuts: "/" focuses main search (when not typing), "Escape" clears query when search input is focused
@@ -345,8 +354,7 @@ export default function SeekrSearchClient() {
       }
       if ((e.key === 'r' || e.key === 'R') && !isInputLike() && viewRef.current === 'grid' && visibleRef.current.length > 0) {
         e.preventDefault();
-        const r = visibleRef.current[Math.floor(Math.random() * visibleRef.current.length)];
-        router.push(`/creator/${r.username}`);
+        triggerSurprise();
       }
       if (e.key === 'Escape') {
         const el = document.activeElement as HTMLInputElement | null;
@@ -569,12 +577,7 @@ export default function SeekrSearchClient() {
             <LinkIcon className="w-3.5 h-3.5" /> Copy link
           </button>
           <button 
-            onClick={() => {
-              if (visible.length > 0) {
-                const r = visible[Math.floor(Math.random() * visible.length)];
-                router.push(`/creator/${r.username}`);
-              }
-            }} 
+            onClick={triggerSurprise} 
             className="chip text-xs hidden sm:inline-flex"
             title="Pick a random creator from current results"
           >
@@ -751,6 +754,13 @@ export default function SeekrSearchClient() {
           aria-label="Find creators near me"
         >
           <MapPin className="w-4.5 h-4.5" />
+        </button>
+        <button
+          onClick={triggerSurprise}
+          className="w-11 h-11 rounded-full bg-[#0F1525] border border-[#F0A500]/50 text-[#F0A500] flex items-center justify-center shadow-xl active:scale-[0.96] transition text-xs font-mono"
+          aria-label="Surprise me - random creator"
+        >
+          S
         </button>
         <button
           onClick={() => setShowFilterSheet(true)}
