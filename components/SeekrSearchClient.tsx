@@ -335,7 +335,9 @@ export default function SeekrSearchClient() {
     if (pool.length === 0) return;
     const r = pool[Math.floor(Math.random() * pool.length)];
     router.push(`/creator/${r.username}`);
-    toast.success(`Surprise → @${r.username}`);
+    toast.success(`Surprise me → ${r.display_name}`, {
+      description: `@${r.username}`
+    });
   };
 
   // Keyboard shortcuts: "/" focuses main search (when not typing), "Escape" clears query when search input is focused
