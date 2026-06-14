@@ -170,6 +170,10 @@ export default function SeekrSearchClient() {
   // Ref for global keyboard shortcut (press / to search)
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Refs to avoid stale closures in the global key handler (for Surprise me / random)
+  const visibleRef = useRef<any[]>([]);
+  const viewRef = useRef<"grid" | "map">("grid");
+
   // Data for chips
   const [categories] = useState(() => getCategoryCounts().slice(0, 8));
 
@@ -314,7 +318,7 @@ export default function SeekrSearchClient() {
   // Remove a single active filter key (for the active filters row)
   const clearOneFilter = (key: keyof SearchFilters) => {
     const nf = { ...filters };
-    // @ts-ignore - flexible demo clearing
+    // @ts-ignore - flexible demo closing
     delete nf[key];
     if (key === 'lat' || key === 'lng' || key === 'radiusKm') {
       delete nf.lat; delete nf.lng; delete nf.radiusKm;
@@ -339,6 +343,11 @@ export default function SeekrSearchClient() {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
+      if ((e.key === 'r' || e.key === 'R') && !isInputLike() && viewRef.current === 'grid' && visibleRef.current.length > 0) {
+        e.preventDefault();
+        const r = visibleRef.current[Math.floor(Math.random() * visibleRef.current.length)];
+        router.push(`/creator/${r.username}`);
+      }
       if (e.key === 'Escape') {
         const el = document.activeElement as HTMLInputElement | null;
         if (el && el.classList.contains('search-input')) {
@@ -351,6 +360,10 @@ export default function SeekrSearchClient() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  // Keep latest visible and view in refs for the keyboard handler (Surprise me)
+  useEffect(() => { visibleRef.current = visible; }, [visible]);
+  useEffect(() => { viewRef.current = view; }, [view]);
 
   // Map <-> Card sync
   const handleCardSelect = (c: RankedCreator) => {
@@ -427,7 +440,7 @@ export default function SeekrSearchClient() {
                 <div>
                   Showing <span className="font-mono text-[#EDF0F8]">{filteredTotal}</span> creators • {tookMs}ms
                 </div>
-                <span className="hidden md:inline text-[10px] text-[#7B849C]">Press <span className="font-mono text-[#EDF0F8]">/</span> to focus • <span className="font-mono text-[#EDF0F8]">Esc</span> clears</span>
+                <span className="hidden md:inline text-[10px] text-[#7B849C]">Press <span className="font-mono text-[#EDF0F8]">/</span> to focus • <span className="font-mono text-[#EDF0F8]">r</span> for surprise • <span className="font-mono text-[#EDF0F8]">Esc</span> clears</span>
               </div>
             </div>
 
