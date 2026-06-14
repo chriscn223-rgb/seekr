@@ -556,6 +556,18 @@ export default function SeekrSearchClient() {
             <LinkIcon className="w-3.5 h-3.5" /> Copy link
           </button>
           <button 
+            onClick={() => {
+              if (visible.length > 0) {
+                const r = visible[Math.floor(Math.random() * visible.length)];
+                router.push(`/creator/${r.username}`);
+              }
+            }} 
+            className="chip text-xs hidden sm:inline-flex"
+            title="Pick a random creator from current results"
+          >
+            Surprise me
+          </button>
+          <button 
             onClick={addDemoCreator} 
             className="chip text-xs hidden sm:inline-flex"
           >
