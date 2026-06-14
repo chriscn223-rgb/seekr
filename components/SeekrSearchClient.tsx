@@ -1,6 +1,6 @@
-use client";
+"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -167,6 +167,9 @@ export default function SeekrSearchClient() {
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
+  // Ref for global keyboard shortcut (press / to search)
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   // Data for chips
   const [categories] = useState(() => getCategoryCounts().slice(0, 8));
 
@@ -226,7 +229,7 @@ export default function SeekrSearchClient() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   // Initial + reactive search
   useEffect(() => {
@@ -322,6 +325,33 @@ export default function SeekrSearchClient() {
     setFiltersAndSync(nf);
   };
 
+  // Keyboard shortcuts: "/" focuses main search (when not typing), "Escape" clears query when search input is focused
+  useEffect(() => {
+    const isInputLike = () => {
+      const el = document.activeElement as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !isInputLike()) {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        const el = document.activeElement as HTMLInputElement | null;
+        if (el && el.classList.contains('search-input')) {
+          handleQuery('');
+          el.blur();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   // Map <-> Card sync
   const handleCardSelect = (c: RankedCreator) => {
     setSelectedId(c.id);
@@ -360,6 +390,7 @@ export default function SeekrSearchClient() {
         onNearMe={handleNearMe}
         onAdvanced={handleAdvanced}
         autoFocus
+        inputRef={searchInputRef}
       />
     </div>
   );
@@ -390,11 +421,13 @@ export default function SeekrSearchClient() {
                 onSubmit={() => runSearch(filters)}
                 onNearMe={handleNearMe}
                 onAdvanced={handleAdvanced}
+                inputRef={searchInputRef}
               />
               <div className="flex items-center justify-between text-[11px] text-[#7B849C] mt-2 px-1">
                 <div>
                   Showing <span className="font-mono text-[#EDF0F8]">{filteredTotal}</span> creators • {tookMs}ms
                 </div>
+                <span className="hidden md:inline text-[10px] text-[#7B849C]">Press <span className="font-mono text-[#EDF0F8]">/</span> to focus • <span className="font-mono text-[#EDF0F8]">Esc</span> clears</span>
               </div>
             </div>
 

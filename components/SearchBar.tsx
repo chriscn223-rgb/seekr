@@ -12,6 +12,7 @@ interface Props {
   onAdvanced?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export default function SearchBar({ 
@@ -21,12 +22,14 @@ export default function SearchBar({
   onNearMe, 
   onAdvanced,
   placeholder = "Search by name, username, niche, or city…", 
-  autoFocus 
+  autoFocus,
+  inputRef: externalInputRef
 }: Props) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalRef = useRef<HTMLInputElement>(null);
+  const inputRef = externalInputRef || internalRef;
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
